@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - JobSeer</title>
+    <meta name="description" content="Track your job search progress and get daily career guidance">
+    
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/react@18/umd/react.production.min.js"></script>
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://resource.trickle.so/vendor_lib/unpkg/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://resource.trickle.so/vendor_lib/unpkg/lucide-static@0.516.0/font/lucide.css" rel="stylesheet">
+
+    <style type="text/tailwindcss">
+    @layer theme {
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #f8fafc;
+            --accent-color: #fbbf24;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    }
+
+    @layer base {
+        body {
+            @apply bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans;
+        }
+        h1, h2, h3 {
+            @apply text-[var(--text-primary)] font-bold;
+        }
+        p {
+            @apply text-[var(--text-secondary)] leading-relaxed;
+        }
+    }
+
+    @layer components {
+        .btn-primary {
+            @apply bg-[var(--primary-color)] text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md;
+        }
+        .card {
+            @apply bg-white rounded-xl p-6 shadow-[var(--card-shadow)] border border-slate-200;
+        }
+        .mystical-card {
+            @apply bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 shadow-[var(--card-shadow)] border border-purple-200;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel" src="components/Header.js"></script>
+    <script type="text/babel" src="components/DashboardStats.js"></script>
+    <script type="text/babel" src="components/DailyGuidance.js"></script>
+    <script type="text/babel" src="components/RecentActivity.js"></script>
+    <script type="text/babel" src="dashboard-app.js"></script>
+</body>
+</html>
