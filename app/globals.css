@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer theme {
+  :root {
+    --primary-color: #6366f1;
+    --secondary-color: #f8fafc;
+    --accent-color: #fbbf24;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-sans;
+  }
+  h1, h2, h3 {
+    @apply text-[var(--text-primary)] font-bold;
+  }
+  p {
+    @apply text-[var(--text-secondary)] leading-relaxed;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--primary-color)] text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md;
+  }
+  .btn-secondary {
+    @apply bg-white text-[var(--primary-color)] px-6 py-3 rounded-lg font-medium border-2 border-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white transition-colors;
+  }
+  .card {
+    @apply bg-white rounded-xl p-6 shadow-[var(--card-shadow)] border border-slate-200;
+  }
+  .mystical-card {
+    @apply bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 shadow-[var(--card-shadow)] border border-purple-200;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
