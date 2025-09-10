@@ -1,15 +1,46 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { calculateZodiacSign, calculateAge } from '../utils/zodiacCalculator';
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  zodiacSign?: string;
+  birthDate?: string; // ISO string format
+  zodiacSign?: string; // Auto-calculated from birthDate
+  mbtiType?: string; // 16 personality types
+  age?: number; // Auto-calculated from birthDate
   profileComplete: boolean;
   createdAt: string;
   emailVerified: boolean;
   avatar?: string;
+  
+  // Extended profile information
+  bio?: string;
+  location?: string;
+  website?: string;
+  linkedin?: string;
+  github?: string;
+  
+  // Career information
+  currentTitle?: string;
+  experienceLevel?: 'entry' | 'junior' | 'mid' | 'senior' | 'lead' | 'executive';
+  skills?: string[];
+  interests?: string[];
+  preferredJobTypes?: ('full-time' | 'part-time' | 'contract' | 'freelance' | 'internship')[];
+  preferredWorkModel?: ('onsite' | 'remote' | 'hybrid')[];
+  preferredLocations?: string[];
+  salaryExpectation?: {
+    min: number;
+    max: number;
+    currency: string;
+  };
+  
+  // Preferences
+  willingToRelocate?: boolean;
+  openToRemote?: boolean;
+  preferredCompanySizes?: ('startup' | 'small' | 'medium' | 'large' | 'enterprise')[];
+  preferredCategories?: string[];
 }
 
 export interface AuthError {
@@ -39,7 +70,8 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  zodiacSign: string;
+  birthDate: string; // ISO string format
+  mbtiType: string;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -103,12 +135,20 @@ export const useAuthStore = create<AuthState>()(
           // Simulate API call
           await new Promise(resolve => setTimeout(resolve, 2000));
           
+          // Calculate zodiac sign and age from birth date
+          const birthDate = new Date(userData.birthDate);
+          const zodiacSign = calculateZodiacSign(birthDate);
+          const age = calculateAge(birthDate);
+          
           // Mock successful registration
           const newUser: User = {
             id: Date.now().toString(),
             email: userData.email,
             name: userData.name,
-            zodiacSign: userData.zodiacSign,
+            birthDate: userData.birthDate,
+            zodiacSign: zodiacSign,
+            mbtiType: userData.mbtiType,
+            age: age,
             profileComplete: false,
             createdAt: new Date().toISOString(),
             emailVerified: false,

@@ -3,30 +3,24 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../../lib/store/auth';
 import { LoadingSpinner } from '../../../lib/components/ui/LoadingSpinner';
+import { MBTI_TYPES } from '../../../lib/data/mbti';
+import { validateBirthDate } from '../../../lib/utils/zodiacCalculator';
 
 interface RegisterFormData {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  zodiacSign: string;
+  birthDate: string;
+  mbtiType: string;
   agreeToTerms: boolean;
 }
 
-const ZODIAC_SIGNS = [
-  { value: 'aries', label: 'Aries (Mar 21 - Apr 19)' },
-  { value: 'taurus', label: 'Taurus (Apr 20 - May 20)' },
-  { value: 'gemini', label: 'Gemini (May 21 - Jun 20)' },
-  { value: 'cancer', label: 'Cancer (Jun 21 - Jul 22)' },
-  { value: 'leo', label: 'Leo (Jul 23 - Aug 22)' },
-  { value: 'virgo', label: 'Virgo (Aug 23 - Sep 22)' },
-  { value: 'libra', label: 'Libra (Sep 23 - Oct 22)' },
-  { value: 'scorpio', label: 'Scorpio (Oct 23 - Nov 21)' },
-  { value: 'sagittarius', label: 'Sagittarius (Nov 22 - Dec 21)' },
-  { value: 'capricorn', label: 'Capricorn (Dec 22 - Jan 19)' },
-  { value: 'aquarius', label: 'Aquarius (Jan 20 - Feb 18)' },
-  { value: 'pisces', label: 'Pisces (Feb 19 - Mar 20)' },
-];
+const MBTI_OPTIONS = Object.entries(MBTI_TYPES).map(([code, type]) => ({
+  value: code,
+  label: `${code} - ${type.name}`,
+  description: type.description
+}));
 
 const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -34,7 +28,8 @@ const RegisterForm: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    zodiacSign: '',
+    birthDate: '',
+    mbtiType: '',
     agreeToTerms: false
   });
   const [errors, setErrors] = useState<Partial<RegisterFormData>>({});
@@ -72,8 +67,18 @@ const RegisterForm: React.FC = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (!formData.zodiacSign) {
-      newErrors.zodiacSign = 'Please select your zodiac sign for personalized guidance';
+    if (!formData.birthDate) {
+      newErrors.birthDate = 'Birth date is required';
+    } else {
+      const birthDate = new Date(formData.birthDate);
+      const validation = validateBirthDate(birthDate);
+      if (!validation.isValid) {
+        newErrors.birthDate = validation.error;
+      }
+    }
+
+    if (!formData.mbtiType) {
+      newErrors.mbtiType = 'Please select your MBTI personality type';
     }
 
     if (!formData.agreeToTerms) {
@@ -94,7 +99,8 @@ const RegisterForm: React.FC = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        zodiacSign: formData.zodiacSign
+        birthDate: formData.birthDate,
+        mbtiType: formData.mbtiType
       });
       
       // Registration successful, small delay then redirect to dashboard
@@ -263,33 +269,71 @@ const RegisterForm: React.FC = () => {
         )}
       </div>
 
-      {/* Zodiac Sign Field */}
+      {/* Birth Date Field */}
       <div>
-        <label htmlFor="zodiacSign" className="block text-sm font-medium text-gray-700 mb-2">
-          Zodiac Sign ✨
+        <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+          Birth Date 🎂
+        </label>
+        <div className="relative">
+          <input
+            type="date"
+            id="birthDate"
+            name="birthDate"
+            value={formData.birthDate}
+            onChange={handleChange}
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+              errors.birthDate ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            disabled={isLoading}
+            data-testid="birth-date-input"
+            max={new Date().toISOString().split('T')[0]}
+          />
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            <div className="icon-calendar text-gray-400" />
+          </div>
+        </div>
+        {errors.birthDate && (
+          <p className="mt-2 text-sm text-red-600" data-testid="birth-date-error">
+            {errors.birthDate}
+          </p>
+        )}
+      </div>
+
+      {/* MBTI Type Field */}
+      <div>
+        <label htmlFor="mbtiType" className="block text-sm font-medium text-gray-700 mb-2">
+          MBTI Personality Type 🧠
         </label>
         <select
-          id="zodiacSign"
-          name="zodiacSign"
-          value={formData.zodiacSign}
+          id="mbtiType"
+          name="mbtiType"
+          value={formData.mbtiType}
           onChange={handleChange}
           className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-            errors.zodiacSign ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            errors.mbtiType ? 'border-red-300 bg-red-50' : 'border-gray-300'
           }`}
           disabled={isLoading}
-          data-testid="zodiac-select"
+          data-testid="mbti-select"
         >
-          <option value="">Select your zodiac sign for personalized guidance</option>
-          {ZODIAC_SIGNS.map((sign) => (
-            <option key={sign.value} value={sign.value}>
-              {sign.label}
+          <option value="">Select your MBTI personality type</option>
+          {MBTI_OPTIONS.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
             </option>
           ))}
         </select>
-        {errors.zodiacSign && (
-          <p className="mt-2 text-sm text-red-600" data-testid="zodiac-error">
-            {errors.zodiacSign}
+        {errors.mbtiType && (
+          <p className="mt-2 text-sm text-red-600" data-testid="mbti-error">
+            {errors.mbtiType}
           </p>
+        )}
+        {formData.mbtiType && (
+          <div className="mt-2 p-3 bg-indigo-50 rounded-lg">
+            <p className="text-sm text-indigo-700">
+              <strong>{MBTI_TYPES[formData.mbtiType]?.name}:</strong>{' '}
+              {MBTI_TYPES[formData.mbtiType]?.description}
+            </p>
+          </div>
         )}
       </div>
 

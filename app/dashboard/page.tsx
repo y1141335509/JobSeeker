@@ -9,6 +9,8 @@ import { PersonalizationEngine } from '../../lib/utils/personalizedRecommendatio
 import { useApplicationsStore } from '../../lib/store/applications';
 import { JobSearchEngine } from '../../lib/data/jobs';
 import { JobMatchingEngine } from '../../lib/utils/jobMatching';
+import { MBTI_TYPES, getMBTICareerAdvice } from '../../lib/data/mbti';
+import { formatZodiacSign } from '../../lib/utils/zodiacCalculator';
 import type { PersonalizedGuidance } from '../../lib/utils/personalizedRecommendations';
 import type { JobMatch } from '../../lib/data/jobs';
 
@@ -19,11 +21,17 @@ export default function DashboardPage() {
   const [loadingGuidance, setLoadingGuidance] = useState(true);
   const [topMatches, setTopMatches] = useState<JobMatch[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [mbtiAdvice, setMbtiAdvice] = useState<string[]>([]);
 
   useEffect(() => {
-    if (user?.zodiacSign) {
-      generatePersonalizedGuidance();
+    if (user) {
+      if (user.zodiacSign) {
+        generatePersonalizedGuidance();
+      }
       generateJobRecommendations();
+      if (user.mbtiType) {
+        generateMBTIAdvice();
+      }
     }
   }, [user]);
 
@@ -49,6 +57,13 @@ export default function DashboardPage() {
     }
   };
 
+  const generateMBTIAdvice = () => {
+    if (user?.mbtiType) {
+      const advice = getMBTICareerAdvice(user.mbtiType);
+      setMbtiAdvice(advice);
+    }
+  };
+
   const generateJobRecommendations = async () => {
     if (!user) return;
     
@@ -60,12 +75,13 @@ export default function DashboardPage() {
         email: user.email,
         name: user.name,
         zodiacSign: user.zodiacSign,
-        experienceLevel: 'mid' as const,
-        preferredJobTypes: ['full-time' as const],
-        preferredWorkModel: ['remote' as const, 'hybrid' as const],
-        preferredCategories: ['Technology', 'Design', 'Product Management'],
-        skills: ['React', 'TypeScript', 'JavaScript', 'CSS', 'Node.js'],
-        salaryExpectation: {
+        mbtiType: user.mbtiType,
+        experienceLevel: (user.experienceLevel || 'mid') as const,
+        preferredJobTypes: user.preferredJobTypes || ['full-time' as const],
+        preferredWorkModel: user.preferredWorkModel || ['remote' as const, 'hybrid' as const],
+        preferredCategories: user.preferredCategories || ['Technology', 'Design', 'Product Management'],
+        skills: user.skills || ['React', 'TypeScript', 'JavaScript', 'CSS', 'Node.js'],
+        salaryExpectation: user.salaryExpectation || {
           min: 80000,
           max: 150000,
           currency: 'USD'
@@ -121,9 +137,23 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-gray-500 mb-2">Your Sign</div>
-                    <div className="text-2xl capitalize font-semibold text-indigo-600">
-                      {user?.zodiacSign} ✨
+                    <div className="flex flex-col gap-2">
+                      {user?.zodiacSign && (
+                        <div>
+                          <div className="text-sm text-gray-500">Your Sign</div>
+                          <div className="text-lg font-semibold text-indigo-600">
+                            {formatZodiacSign(user.zodiacSign)}
+                          </div>
+                        </div>
+                      )}
+                      {user?.mbtiType && (
+                        <div>
+                          <div className="text-sm text-gray-500">Personality</div>
+                          <div className="text-lg font-semibold text-purple-600">
+                            {user.mbtiType} 🧠
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -283,8 +313,36 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Right Column - Daily Guidance */}
-              <div>
+              {/* Right Column - Daily Guidance & MBTI Insights */}
+              <div className="space-y-6">
+                {/* MBTI Career Insights */}
+                {user?.mbtiType && (
+                  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl shadow-lg p-6 border border-indigo-200">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">
+                      {user.mbtiType} Career Insights 🧠
+                    </h2>
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {MBTI_TYPES[user.mbtiType]?.name}
+                      </h3>
+                      <p className="text-sm text-gray-700 mb-4">
+                        {MBTI_TYPES[user.mbtiType]?.description}
+                      </p>
+                    </div>
+                    {mbtiAdvice.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-gray-900 text-sm">Career Tips:</h4>
+                        {mbtiAdvice.map((advice, index) => (
+                          <div key={index} className="text-sm text-indigo-700 bg-white p-2 rounded border-l-4 border-indigo-400">
+                            {advice}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Daily Guidance */}
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl shadow-lg p-6 border border-purple-200">
                   <h2 className="text-xl font-bold text-gray-900 mb-6">Today's Guidance ✨</h2>
                   

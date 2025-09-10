@@ -1,10 +1,12 @@
 import type { Job, JobMatch } from '../data/jobs';
+import { getMBTIJobMatch } from '../data/mbti';
 
 export interface UserProfile {
   id: string;
   email: string;
   name: string;
   zodiacSign?: string;
+  mbtiType?: string;
   
   // Professional Information
   currentTitle?: string;
@@ -116,6 +118,18 @@ export class JobMatchingEngine {
         ['mid', 'senior', 'lead', 'executive'].includes(userProfile.experienceLevel)) {
       score += 3;
       matchReasons.push('Urgent hiring - quick opportunity');
+    }
+
+    // MBTI personality matching (10 points)
+    if (userProfile.mbtiType) {
+      const mbtiScore = this.calculateMBTIMatch(job, userProfile.mbtiType);
+      score += mbtiScore.score;
+      if (mbtiScore.reason) {
+        matchReasons.push(mbtiScore.reason);
+        if (mbtiScore.score > 5) {
+          strengths.push('MBTI personality alignment');
+        }
+      }
     }
 
     // Astrological bonus (fun factor!)
@@ -256,6 +270,30 @@ export class JobMatchingEngine {
     return { score, matches, missing, strengths };
   }
 
+  private static calculateMBTIMatch(job: Job, mbtiType: string): { score: number; reason?: string } {
+    // Get MBTI job matching score (0-100)
+    const mbtiJobScore = getMBTIJobMatch(mbtiType, job.category);
+    
+    // Convert to our scoring system (0-10 points)
+    let score = 0;
+    let reason = '';
+    
+    if (mbtiJobScore >= 85) {
+      score = 10;
+      reason = `Excellent MBTI match: ${mbtiType} personalities thrive in ${job.category}`;
+    } else if (mbtiJobScore >= 70) {
+      score = 7;
+      reason = `Good MBTI alignment: ${mbtiType} traits suit ${job.category} roles`;
+    } else if (mbtiJobScore >= 55) {
+      score = 4;
+      reason = `Moderate MBTI fit for ${job.category} position`;
+    } else {
+      score = 0; // Below 55 gets no bonus
+    }
+    
+    return { score, reason: reason || undefined };
+  }
+
   private static calculateAstrologicalMatch(job: Job, zodiacSign: string): { score: number; reason?: string } {
     // Fun astrological matching based on job categories and zodiac traits
     const astroMatches: Record<string, string[]> = {
@@ -277,8 +315,8 @@ export class JobMatchingEngine {
     
     if (preferredCategories.includes(job.category)) {
       return {
-        score: 3,
-        reason: `Astrological alignment: ${zodiacSign} traits suit ${job.category} roles`
+        score: 2,
+        reason: `Astrological alignment: ${zodiacSign} traits suit ${job.category} roles ✨`
       };
     }
 
