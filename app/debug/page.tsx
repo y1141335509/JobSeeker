@@ -7,9 +7,11 @@ export default function DebugPage() {
   const authState = useAuthStore();
 
   const handleClearStorage = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.reload();
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.reload();
+    }
   };
 
   const handleMockLogin = () => {
@@ -41,8 +43,8 @@ export default function DebugPage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">Local Storage</h2>
             <div className="space-y-2 text-sm">
-              <div><strong>Auth Token:</strong> {localStorage.getItem('auth-token') || 'None'}</div>
-              <div><strong>Auth Storage:</strong> {localStorage.getItem('auth-storage') || 'None'}</div>
+              <div><strong>Auth Token:</strong> {typeof window !== 'undefined' ? localStorage.getItem('auth-token') || 'None' : 'SSR'}</div>
+              <div><strong>Auth Storage:</strong> {typeof window !== 'undefined' ? localStorage.getItem('auth-storage') || 'None' : 'SSR'}</div>
             </div>
           </div>
 
