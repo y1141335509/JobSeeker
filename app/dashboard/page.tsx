@@ -11,6 +11,7 @@ import { JobSearchEngine } from '../../lib/data/jobs';
 import { JobMatchingEngine } from '../../lib/utils/jobMatching';
 import { MBTI_TYPES, getMBTICareerAdvice } from '../../lib/data/mbti';
 import { formatZodiacSign } from '../../lib/utils/zodiacCalculator';
+import { DailyTarotCard } from '../../lib/components/tarot/DailyTarotCard';
 import type { PersonalizedGuidance } from '../../lib/utils/personalizedRecommendations';
 import type { JobMatch } from '../../lib/data/jobs';
 
@@ -341,6 +342,9 @@ export default function DashboardPage() {
                     )}
                   </div>
                 )}
+
+                {/* Daily Tarot Card */}
+                <DailyTarotCard />
 
                 {/* Daily Guidance */}
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl shadow-lg p-6 border border-purple-200">

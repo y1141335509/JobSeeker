@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import ProtectedRoute from '../../../lib/components/auth/ProtectedRoute';
 import { useAuthStore } from '../../../lib/store/auth';
 import { useApplicationsStore } from '../../../lib/store/applications';
+import { useJobsStore } from '../../../lib/store/jobs';
 import { JobSearchEngine } from '../../../lib/data/jobs';
 import { JobMatchingEngine } from '../../../lib/utils/jobMatching';
 import type { Job, JobMatch } from '../../../lib/data/jobs';
@@ -14,12 +15,14 @@ const JobDetailPage: React.FC = () => {
   const params = useParams();
   const { user } = useAuthStore();
   const { applications, addApplication } = useApplicationsStore();
+  const { saveJob, unsaveJob, getSavedJobs } = useJobsStore();
   const [job, setJob] = useState<Job | null>(null);
   const [jobMatch, setJobMatch] = useState<JobMatch | null>(null);
   const [loading, setLoading] = useState(true);
   const [applied, setApplied] = useState(false);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isJobSaved, setIsJobSaved] = useState(false);
   const [applicationData, setApplicationData] = useState({
     coverLetter: '',
     salaryExpectation: '',
@@ -59,6 +62,12 @@ const JobDetailPage: React.FC = () => {
           // Check if user has already applied
           const existingApplication = applications.find(app => app.jobId === jobId && app.userId === user?.id);
           setApplied(!!existingApplication);
+          
+          // Check if job is saved
+          if (user) {
+            const savedJobs = getSavedJobs(user.id);
+            setIsJobSaved(savedJobs.some(saved => saved.jobId === jobId));
+          }
         }
       } catch (error) {
         console.error('Error fetching job:', error);
@@ -70,7 +79,7 @@ const JobDetailPage: React.FC = () => {
     if (params?.id) {
       fetchJob();
     }
-  }, [params?.id, applications, user?.id]);
+  }, [params?.id, applications, user?.id, getSavedJobs]);
 
   const handleApply = () => {
     setShowApplicationModal(true);
@@ -110,6 +119,18 @@ const JobDetailPage: React.FC = () => {
       console.error('Error submitting application:', error);
     } finally {
       setSubmitting(false);
+    }
+  };
+  
+  const handleSaveJob = () => {
+    if (!job || !user) return;
+    
+    if (isJobSaved) {
+      unsaveJob(job.id, user.id);
+      setIsJobSaved(false);
+    } else {
+      saveJob(job.id, user.id);
+      setIsJobSaved(true);
     }
   };
 
@@ -179,9 +200,16 @@ const JobDetailPage: React.FC = () => {
                 <i className="lucide-printer mr-2"></i>
                 Print
               </button>
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <i className="lucide-bookmark mr-2"></i>
-                Save Job
+              <button 
+                onClick={handleSaveJob}
+                className={`px-4 py-2 border rounded-lg transition-colors ${
+                  isJobSaved
+                    ? 'border-yellow-400 bg-yellow-50 text-yellow-700 hover:bg-yellow-100'
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <i className={`lucide-bookmark${isJobSaved ? '-check' : ''} mr-2`}></i>
+                {isJobSaved ? 'Saved' : 'Save Job'}
               </button>
             </div>
           </div>

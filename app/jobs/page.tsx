@@ -387,6 +387,13 @@ const JobsPage: React.FC = () => {
             ))
           )}
         </div>
+        
+        {/* Saved Jobs Panel */}
+        <SavedJobsPanel 
+          isOpen={showSavedPanel}
+          onClose={() => setShowSavedPanel(false)}
+          onJobClick={handleJobClick}
+        />
       </div>
     </div>
   );

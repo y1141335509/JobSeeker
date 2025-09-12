@@ -8,6 +8,7 @@ import { ErrorBoundary } from '../../lib/components/ui/ErrorBoundary';
 import { LoadingSpinner } from '../../lib/components/ui/LoadingSpinner';
 import { MBTI_TYPES } from '../../lib/data/mbti';
 import { validateBirthDate, formatZodiacSign } from '../../lib/utils/zodiacCalculator';
+import { LinkedInConnect } from '../../lib/components/integrations/LinkedInConnect';
 
 const MBTI_OPTIONS = Object.entries(MBTI_TYPES).map(([code, type]) => ({
   value: code,
@@ -453,6 +454,30 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </form>
+                </div>
+              </div>
+            </div>
+
+            {/* External Integrations */}
+            <div className="mt-8">
+              <div className="bg-white rounded-xl shadow-lg p-6 border border-slate-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">External Integrations</h3>
+                <p className="text-gray-600 mb-6">
+                  Connect your professional accounts to automatically sync your profile data.
+                </p>
+                
+                <LinkedInConnect onProfileImported={() => {
+                  setSuccessMessage('LinkedIn profile imported successfully!');
+                  setTimeout(() => setSuccessMessage(''), 3000);
+                }} />
+                
+                <div className="mt-4 text-center">
+                  <button 
+                    onClick={() => window.location.href = '/integrations'}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    View All Integrations →
+                  </button>
                 </div>
               </div>
             </div>

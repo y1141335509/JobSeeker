@@ -20,6 +20,9 @@ const Header: React.FC = () => {
     { label: 'Dashboard', href: '/dashboard', action: 'navigate' },
     { label: 'Job Search', href: '/jobs', action: 'navigate' },
     { label: 'Guidance', href: '/guidance', action: 'navigate' },
+    { label: 'Tarot Reading', href: '/tarot', action: 'navigate' },
+    { label: 'Email Templates', href: '/email-templates', action: 'navigate' },
+    { label: 'Integrations', href: '/integrations', action: 'navigate' },
   ];
 
   const navigateToSection = (sectionId: string) => {
